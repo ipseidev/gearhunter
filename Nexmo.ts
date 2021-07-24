@@ -1,5 +1,5 @@
 const Vonage = require('@vonage/server-sdk')
-const getItemNameById = require('./enums/itemsEnum');
+const getItemNameById = require('./utils/getItameName');
 const fs = require('fs');
 
 

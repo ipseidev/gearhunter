@@ -1,6 +1,6 @@
 "use strict";
 const Vonage = require('@vonage/server-sdk');
-const getItemNameById = require('./enums/itemsEnum');
+const getItemNameById = require('./utils/getItameName');
 const fs = require('fs');
 const config = {
     apiKey: process.env.NEXMO_API_KEY,
@@ -36,15 +36,16 @@ class Nexmo {
     }
     async _isAuctionAlreadyNotified(auctionId) {
         await this.mongoClient.connect();
-        return await this.mongoClient.db("spotitem").collection("itemNotified").findOne({ "itemId": 1401819279 });
+        return await this.mongoClient.db("spotitem").collection("itemNotified").findOne({ "itemId": auctionId });
     }
     async _setAuctionToNotified(auctionId) {
-        console.log(await this._isAuctionAlreadyNotified(auctionId));
-        if (await this._isAuctionAlreadyNotified(auctionId))
+        if (await this._isAuctionAlreadyNotified(auctionId) !== undefined)
             return;
         await this.mongoClient.db("spotitem").collection("itemNotified").insertOne({ itemId: auctionId });
     }
-    _sendSms(text, auctionId) {
+    async _sendSms(text, auctionId) {
+        if (await this._isAuctionAlreadyNotified(auctionId) !== undefined)
+            return;
         const from = "GEARHUNTER";
         const to = "33784006727";
         this.vonage.message.sendSms(from, to, text, (err, responseData) => {
@@ -64,9 +65,8 @@ class Nexmo {
     }
     async _notify(server, auction, faction) {
         const text = await this._buildMessage(server, auction, faction);
-        await this._setAuctionToNotified(auction.id);
         console.log(text);
-        //this._sendSms(text, auction.id);
+        this._sendSms(text, auction.id);
     }
 }
 module.exports = new Nexmo(config);

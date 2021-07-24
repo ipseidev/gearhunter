@@ -4,7 +4,7 @@ require('dotenv').config()
 const axios = require('axios').default;
 const PQueue = require('p-queue');
 
-const getName = require('./enums/itemsEnum')
+const getName = require('./utils/getItameName')
 const OauthClient = require('./OAuthClient');
 const CONFIG = require('./config');
 const notify = require('./Nexmo');
@@ -28,8 +28,7 @@ const oauthOptions = {
     }
 };
 
-const oauthClient = new OauthClient({oauthOptions});
-const pqueue = new PQueue.default({concurrency: 1});
+
 
 
 class Spotitem {
@@ -37,9 +36,11 @@ class Spotitem {
     private oauthClient: any;
     private listOfConnectedRealmsIds: Array<any> = [];
     private listOfPromiseOfAuctionsUrls: Array<Promise<any>> = [];
+    private queue:any;
 
-    constructor(oauthClient: any) {
+    constructor(oauthClient: any, queue:any) {
         this.oauthClient = oauthClient;
+        this.queue = queue
         this.accessToken = '';
     }
 
@@ -129,7 +130,7 @@ class Spotitem {
         } catch (e) {
             console.log(e);
         }
-        console.log(pqueue._queue._queue.length);
+        console.log(this.queue._queue._queue.length);
         console.log("---fin du scan---");
     }
 
@@ -139,7 +140,7 @@ class Spotitem {
         this.listOfConnectedRealmsIds.map(realmId => {
             //if (index >= 10) return;
             this.listOfPromiseOfAuctionsUrls.push(
-                pqueue.add(async () => await this.getAuctionsByRealmId(realmId))
+                this.queue.add(async () => await this.getAuctionsByRealmId(realmId))
             );
             index++;
         });
@@ -183,12 +184,12 @@ class Spotitem {
 }
 
 
-let spot;
-setInterval(() => {
-    spot = new Spotitem(oauthClient);
-    spot.run().then((response) => {
-        console.log(response);
-    });
+
+setInterval(async () => {
+    const oauthClient = new OauthClient({oauthOptions});
+    const pqueue = new PQueue.default({concurrency: 1});
+    let spot = new Spotitem(oauthClient, pqueue);
+    await spot.run();
 }, 180000)
 
 

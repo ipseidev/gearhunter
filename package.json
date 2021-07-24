@@ -2,13 +2,13 @@
   "name": "version-lite",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/app.js",
   "scripts": {
     "build": "rimraf dist && tsc",
     "preserve": "npm run build",
-    "serve": "concurrently \"tsc --watch\" \"nodemon -q dist/index.js\"",
+    "serve": "concurrently \"tsc --watch\" \"nodemon -q dist/app.js\"",
     "prestart": "npm run build",
-    "start": "node --max_old_space_size=2560 dist/index.js",
+    "start": "node --max_old_space_size=2560 dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
