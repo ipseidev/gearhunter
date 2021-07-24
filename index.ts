@@ -169,6 +169,9 @@ class Spotitem {
     }
 
     isPriceItemOk(item: any): boolean {
+        if (CONFIG.listItems.max100.includes(item.item.id)) {
+            return (item.buyout / 10000) <= 100
+        }
         if (CONFIG.listItems.max60.includes(item.item.id)) {
             return (item.buyout / 10000) <= 60
         }
@@ -192,7 +195,6 @@ class Spotitem {
         return "done";
     }
 }
-
 
 
 let spot;
