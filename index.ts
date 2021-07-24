@@ -195,9 +195,10 @@ class Spotitem {
 
 
 
+let spot;
 
 setInterval(() => {
-    const spot = new Spotitem(oauthClient);
+    spot = new Spotitem(oauthClient);
     spot.run().then((response) => {
         console.log(response);
     });
