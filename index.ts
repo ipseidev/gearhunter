@@ -194,12 +194,12 @@ class Spotitem {
 
 
 let spot;
-setInterval(() => {
-    spot = new Spotitem(oauthClient);
-    spot.run().then((response) => {
-        console.log(response);
-    });
-}, 18000)
+// setInterval(() => {
+//     spot = new Spotitem(oauthClient);
+//     spot.run().then((response) => {
+//         console.log(response);
+//     });
+// }, 180000)
 
 
 
