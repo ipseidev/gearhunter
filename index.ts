@@ -146,7 +146,7 @@ class Spotitem {
     }
 
     async resolveAllAuctionsUrls() {
-        console.log("---crawl de toutes les urls...---")
+        console.log("---crawl de toutes les urls....---")
         return await Promise.allSettled(this.listOfPromiseOfAuctionsUrls).catch((e: any) => {
             console.log(e);
         });
