@@ -57,8 +57,9 @@ class Nexmo {
         await this.mongoClient.db("spotitem").collection("itemNotified").insertOne({itemId: auctionId});
     }
 
-    _sendSms(text: any, auctionId: number) {
-        const from = "GEARHUNTER"
+   async _sendSms(text: any, auctionId: number) {
+       if (await this._isAuctionAlreadyNotified(auctionId) !== undefined) return;
+       const from = "GEARHUNTER"
         const to = "33784006727"
         this.vonage.message.sendSms(from, to, text, (err: any, responseData: { messages: { [x: string]: any; }[]; }) => {
             if (err) {
