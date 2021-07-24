@@ -36,7 +36,6 @@ class Spotitem {
     private oauthClient: any;
     private listOfConnectedRealmsIds: Array<any> = [];
     private listOfPromiseOfAuctionsUrls: Array<Promise<any>> = [];
-    private auctions: Array<any> = [];
 
     constructor(oauthClient: any) {
         this.oauthClient = oauthClient;
@@ -88,7 +87,6 @@ class Spotitem {
             console.log(e);
         });
         auction.auctions.neutre = neutre.data
-        this.auctions.push(auction)
         await this.scanAuction(auction).catch((e: any) => {
             console.log(e);
         });
