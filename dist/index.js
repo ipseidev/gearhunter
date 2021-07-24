@@ -27,7 +27,6 @@ class Spotitem {
     constructor(oauthClient) {
         this.listOfConnectedRealmsIds = [];
         this.listOfPromiseOfAuctionsUrls = [];
-        this.auctions = [];
         this.oauthClient = oauthClient;
         this.accessToken = '';
     }
@@ -52,7 +51,7 @@ class Spotitem {
         }
     }
     async getAuctionsByRealmId(realmId) {
-        console.log("---Récupération et formatage de la liste des ventes aux enchères---");
+        console.log("---Téléchargement des auctions..---");
         const auction = {
             realmId,
             auctions: {
@@ -73,7 +72,6 @@ class Spotitem {
             console.log(e);
         });
         auction.auctions.neutre = neutre.data;
-        this.auctions.push(auction);
         await this.scanAuction(auction).catch((e) => {
             console.log(e);
         });
@@ -84,7 +82,7 @@ class Spotitem {
         console.log(`---Scan de ${server.data.realms[0].name.fr_FR}...---`);
         try {
             if (auction.auctions?.horde) {
-                console.log('scan horde..');
+                console.log('scan horde, taille : ', auction.auctions.horde.auctions.length);
                 await auction.auctions?.horde?.auctions.map((bid) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
                         notify._notify(server, bid, "horde");
@@ -92,7 +90,7 @@ class Spotitem {
                 });
             }
             if (auction.auctions?.alliance) {
-                console.log('scan alliance..');
+                console.log('scan alliance, taille :', auction.auctions.alliance.auctions.length);
                 await auction.auctions?.alliance?.auctions.map((bid) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
                         notify._notify(server, bid, "alliance");
@@ -100,7 +98,7 @@ class Spotitem {
                 });
             }
             if (auction.auctions?.neutre) {
-                console.log('scan neutre..');
+                console.log('scan neutre, taille :', auction.auctions.neutre.auctions.length);
                 await auction.auctions?.neutre?.auctions.map((bid) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
                         notify._notify(server, bid, "neutre");
@@ -162,9 +160,11 @@ class Spotitem {
         await this.getConnectedRealms();
         await this._reduceQueueUrlsOfAuctionsOfConnectedRealms();
         await this.resolveAllAuctionsUrls();
-        console.log("----DONE, RESTART NEW SCAN----");
-        await this.run();
+        console.log("----DONE, WAIT FOR RESTART NEW SCAN----");
+        return "done";
     }
 }
 const spot = new Spotitem(oauthClient);
-spot.run();
+spot.run().then((response) => {
+    console.log(response);
+});

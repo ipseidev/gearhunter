@@ -100,7 +100,7 @@ class Spotitem {
         try {
 
             if (auction.auctions?.horde) {
-                console.log('scan horde, taille : ', auction.auctions.horde.length);
+                console.log('scan horde, taille : ', auction.auctions.horde.auctions.length);
 
                 await auction.auctions?.horde?.auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
@@ -110,7 +110,7 @@ class Spotitem {
             }
 
             if (auction.auctions?.alliance) {
-                console.log('scan alliance, taille :', auction.auctions.alliance.length)
+                console.log('scan alliance, taille :', auction.auctions.alliance.auctions.length)
                 await auction.auctions?.alliance?.auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
                         notify._notify(server, bid, "alliance");
@@ -119,7 +119,7 @@ class Spotitem {
             }
 
             if (auction.auctions?.neutre) {
-                console.log('scan neutre, taille :', auction.auctions.neutre.length)
+                console.log('scan neutre, taille :', auction.auctions.neutre.auctions.length)
                 await auction.auctions?.neutre?.auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
                         notify._notify(server, bid, "neutre");
