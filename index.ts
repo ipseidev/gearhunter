@@ -9,6 +9,14 @@ const OauthClient = require('./OAuthClient');
 const CONFIG = require('./config');
 const notify = require('./Nexmo');
 
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 8000;
+app.get('/', (req: any, res: { send: (arg0: string) => any; }) => res.send('gearhunter'));
+app.listen(PORT, () => {
+    console.log(`⚡️[server]: Server is running at https://localhost:${PORT}`);
+});
+
 const oauthOptions = {
     client: {
         id: process.env.CLIENT_ID,
@@ -189,3 +197,5 @@ class Spotitem {
 
 const spot = new Spotitem(oauthClient);
 spot.run();
+
+

@@ -5,6 +5,13 @@ const PQueue = require('p-queue');
 const OauthClient = require('./OAuthClient');
 const CONFIG = require('./config');
 const notify = require('./Nexmo');
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 8000;
+app.get('/', (req, res) => res.send('gearhunter'));
+app.listen(PORT, () => {
+    console.log(`⚡️[server]: Server is running at https://localhost:${PORT}`);
+});
 const oauthOptions = {
     client: {
         id: process.env.CLIENT_ID,
