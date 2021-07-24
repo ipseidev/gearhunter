@@ -149,7 +149,7 @@ class Spotitem {
         await this.getConnectedRealms();
         await this._reduceQueueUrlsOfAuctionsOfConnectedRealms();
         await this.resolveAllAuctionsUrls();
-        console.log("----DONE----")
+        console.log("----DONE, RESTART NEW SCAN----")
         await this.run();
     }
 }
