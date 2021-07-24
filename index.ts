@@ -187,13 +187,19 @@ class Spotitem {
         await this.getConnectedRealms();
         await this._reduceQueueUrlsOfAuctionsOfConnectedRealms();
         await this.resolveAllAuctionsUrls();
-        console.log("----DONE, RESTART NEW SCAN----")
-        await this.run();
+        console.log("----DONE, WAIT FOR RESTART NEW SCAN----")
+        return "done";
     }
 }
 
 
 const spot = new Spotitem(oauthClient);
-spot.run();
+
+setInterval(() => {
+    spot.run().then((response) => {
+        console.log(response);
+    });
+}, 180000)
+
 
 
