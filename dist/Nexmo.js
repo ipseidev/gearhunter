@@ -6,11 +6,20 @@ const config = {
     apiKey: process.env.NEXMO_API_KEY,
     apiSecret: process.env.NEXMO_API_SECRET,
 };
+const { MongoClient } = require('mongodb');
+const uri = "mongodb+srv://nimpo:Spotitem09.@cluster0.b0qnw.mongodb.net/spotitem?retryWrites=true&w=majority";
+const mongoClient = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+// client.connect((err: any) => {
+//     const collection = client.db("spotitem").collection("itemNotified");
+//     // perform actions on the collection object
+//     client.close();
+// });
 class Nexmo {
     constructor(nexmoConfig) {
         this.vonage = new Vonage(nexmoConfig, {
             debug: true
         });
+        this.mongoClient = mongoClient;
     }
     _buildMessage(server, auction, faction) {
         const nameItem = getItemNameById(auction.item.id);
@@ -18,24 +27,22 @@ class Nexmo {
         const region = server.data.realms[0].category.fr_FR;
         const price = auction.buyout / 10000;
         return `
-        identifier : ${auction.id}
-        il s'agit de l'objet suivant : ${nameItem}
-        que tu pourras trouver sur ce serveur : ${serverName} - ${region}
-        Dans l'hotel des vente : ${faction}
-        au prix de : ${price} golds
+        id : ${auction.id}
+        Objet: ${nameItem}
+        Serveur : ${serverName} - ${region}
+        Faction : ${faction}
+        Prix : ${price} golds
         `;
     }
-    _isAuctionAlreadyNotified(auctionId) {
-        const itemsFound = fs.readFileSync('itemsFound.json');
-        return JSON.parse(itemsFound).auctionsId.includes(auctionId);
+    async _isAuctionAlreadyNotified(auctionId) {
+        await this.mongoClient.connect();
+        return await this.mongoClient.db("spotitem").collection("itemNotified").findOne({ "itemId": 1401819279 });
     }
-    _setAuctionToNotified(auctionId) {
-        if (this._isAuctionAlreadyNotified(auctionId))
+    async _setAuctionToNotified(auctionId) {
+        console.log(await this._isAuctionAlreadyNotified(auctionId));
+        if (await this._isAuctionAlreadyNotified(auctionId))
             return;
-        const itemsFound = fs.readFileSync('itemsFound.json');
-        const newItemsFound = JSON.parse(itemsFound);
-        newItemsFound.auctionsId.push(auctionId);
-        fs.writeFileSync('itemsFound.json', JSON.stringify(newItemsFound));
+        await this.mongoClient.db("spotitem").collection("itemNotified").insertOne({ itemId: auctionId });
     }
     _sendSms(text, auctionId) {
         const from = "GEARHUNTER";
@@ -57,8 +64,9 @@ class Nexmo {
     }
     async _notify(server, auction, faction) {
         const text = await this._buildMessage(server, auction, faction);
+        await this._setAuctionToNotified(auction.id);
         console.log(text);
-        this._sendSms(text, auction.id);
+        //this._sendSms(text, auction.id);
     }
 }
 module.exports = new Nexmo(config);

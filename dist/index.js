@@ -85,7 +85,7 @@ class Spotitem {
             if (auction.auctions?.horde) {
                 await auction.auctions?.horde?.auctions.map((bid) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                        console.log(getName(bid.item.id), bid.buyout / 10000, "po", "horde");
+                        console.log(getName(bid.item.id));
                         notify._notify(server, bid, "horde");
                     }
                 });
@@ -93,7 +93,7 @@ class Spotitem {
             if (auction.auctions?.alliance) {
                 await auction.auctions?.alliance?.auctions.map((bid) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                        console.log(getName(bid.item.id), bid.buyout / 10000, "alliance");
+                        console.log(getName(bid.item.id));
                         notify._notify(server, bid, "alliance");
                     }
                 });
@@ -101,7 +101,7 @@ class Spotitem {
             if (auction.auctions?.neutre) {
                 await auction.auctions?.neutre?.auctions.map((bid) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                        console.log(getName(bid.item.id), bid.buyout / 10000, "neutre");
+                        console.log(getName(bid.item.id));
                         notify._notify(server, bid, "neutre");
                     }
                 });
@@ -134,25 +134,14 @@ class Spotitem {
         });
     }
     isItemSearched(itemId) {
-        return CONFIG.listItems.max100.includes(itemId) || CONFIG.listItems.max60.includes(itemId) ||
-            CONFIG.listItems.max40.includes(itemId) || CONFIG.listItems.max20.includes(itemId) || CONFIG.listItems.max15.includes(itemId);
+        return CONFIG.listItems.max70.includes(itemId) || CONFIG.listItems.max10.includes(itemId);
     }
     isPriceItemOk(item) {
-        if (CONFIG.listItems.max100.includes(item.item.id)) {
-            console.log((item.buyout / 10000));
-            return (item.buyout / 10000) <= 500;
+        if (CONFIG.listItems.max70.includes(item.item.id)) {
+            return (item.buyout / 10000) <= 7000;
         }
-        if (CONFIG.listItems.max60.includes(item.item.id)) {
-            return (item.buyout / 10000) <= 500;
-        }
-        if (CONFIG.listItems.max40.includes(item.item.id)) {
-            return (item.buyout / 10000) <= 500;
-        }
-        if (CONFIG.listItems.max20.includes(item.item.id)) {
-            return (item.buyout / 10000) <= 20;
-        }
-        if (CONFIG.listItems.max15.includes(item.item.id)) {
-            return (item.buyout / 10000) <= 15;
+        if (CONFIG.listItems.max10.includes(item.item.id)) {
+            return (item.buyout / 10000) <= 10;
         }
         return false;
     }
@@ -165,6 +154,12 @@ class Spotitem {
     }
 }
 let spot;
+// setInterval(() => {
+//     spot = new Spotitem(oauthClient);
+//     spot.run().then((response) => {
+//         console.log(response);
+//     });
+// }, 180000)
 spot = new Spotitem(oauthClient);
 spot.run().then((response) => {
     console.log(response);
