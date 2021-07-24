@@ -25,12 +25,16 @@ class Spotitem {
         this.accessToken = '';
     }
     async init() {
-        this.accessToken = await this.oauthClient.getToken();
+        this.accessToken = await this.oauthClient.getToken().catch((e) => {
+            console.log(e);
+        });
     }
     async getConnectedRealms() {
         console.log("---Récupération de la liste des serveurs connectés");
         await this.init();
-        const connectedRealms = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/search/connected-realm?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`);
+        const connectedRealms = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/search/connected-realm?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`).catch((e) => {
+            console.log(e);
+        });
         this._reduceConnectedRealms(connectedRealms.data.results);
     }
     _reduceConnectedRealms(connectedRealms) {
@@ -50,34 +54,56 @@ class Spotitem {
                 neutre: []
             }
         };
-        const alliance = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}/auctions/2?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`);
+        const alliance = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}/auctions/2?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`).catch((e) => {
+            console.log(e);
+        });
         auction.auctions.alliance = alliance.data;
-        const horde = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}/auctions/6?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`);
+        const horde = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}/auctions/6?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`).catch((e) => {
+            console.log(e);
+        });
         auction.auctions.horde = horde.data;
-        const neutre = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}/auctions/7?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`);
+        const neutre = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}/auctions/7?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`).catch((e) => {
+            console.log(e);
+        });
         auction.auctions.neutre = neutre.data;
         this.auctions.push(auction);
-        await this.scanAuction(auction);
+        await this.scanAuction(auction).catch((e) => {
+            console.log(e);
+        });
         return auction;
     }
     async scanAuction(auction) {
         const server = await this._getRealmPromise(auction.realmId);
         console.log(`---Scan de ${server.data.realms[0].name.fr_FR}...---`);
-        await auction.auctions?.horde?.auctions.map((bid) => {
-            if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                notify._notify(server, bid, "horde");
+        try {
+            if (auction.auctions?.horde) {
+                console.log('scan horde..');
+                await auction.auctions?.horde?.auctions.map((bid) => {
+                    if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
+                        notify._notify(server, bid, "horde");
+                    }
+                });
             }
-        });
-        await auction.auctions?.alliance?.auctions.map((bid) => {
-            if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                notify._notify(server, bid, "alliance");
+            if (auction.auctions?.alliance) {
+                console.log('scan alliance..');
+                await auction.auctions?.alliance?.auctions.map((bid) => {
+                    if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
+                        notify._notify(server, bid, "alliance");
+                    }
+                });
             }
-        });
-        await auction.auctions?.neutre?.auctions.map((bid) => {
-            if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                notify._notify(server, bid, "neutre");
+            if (auction.auctions?.neutre) {
+                console.log('scan neutre..');
+                await auction.auctions?.neutre?.auctions.map((bid) => {
+                    if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
+                        notify._notify(server, bid, "neutre");
+                    }
+                });
             }
-        });
+        }
+        catch (e) {
+            console.log(e);
+        }
         console.log(pqueue._queue._queue.length);
         console.log("---fin du scan---");
     }
@@ -93,10 +119,14 @@ class Spotitem {
     }
     async resolveAllAuctionsUrls() {
         console.log("---crawl de toutes les urls...---");
-        return await Promise.allSettled(this.listOfPromiseOfAuctionsUrls);
+        return await Promise.allSettled(this.listOfPromiseOfAuctionsUrls).catch((e) => {
+            console.log(e);
+        });
     }
     async _getRealmPromise(realmId) {
-        return await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`);
+        return await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`).catch((e) => {
+            console.log(e);
+        });
     }
     isItemSearched(itemId) {
         let found = false;
@@ -125,7 +155,7 @@ class Spotitem {
         await this.getConnectedRealms();
         await this._reduceQueueUrlsOfAuctionsOfConnectedRealms();
         await this.resolveAllAuctionsUrls();
-        console.log("----DONE----");
+        console.log("----DONE, RESTART NEW SCAN----");
         await this.run();
     }
 }
