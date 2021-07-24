@@ -4,7 +4,7 @@ require('dotenv').config()
 const axios = require('axios').default;
 const PQueue = require('p-queue');
 
-
+const getName = require('./enums/itemsEnum')
 const OauthClient = require('./OAuthClient');
 const CONFIG = require('./config');
 const notify = require('./Nexmo');
@@ -100,28 +100,27 @@ class Spotitem {
         try {
 
             if (auction.auctions?.horde) {
-                console.log('scan horde, taille : ', auction.auctions.horde.auctions.length);
-
                 await auction.auctions?.horde?.auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
+                        console.log(getName(bid.item.id), bid.buyout / 10000, "po", "horde")
                         notify._notify(server, bid, "horde");
                     }
                 })
             }
 
             if (auction.auctions?.alliance) {
-                console.log('scan alliance, taille :', auction.auctions.alliance.auctions.length)
                 await auction.auctions?.alliance?.auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
+                        console.log(getName(bid.item.id), bid.buyout / 10000, "alliance")
                         notify._notify(server, bid, "alliance");
                     }
                 })
             }
 
             if (auction.auctions?.neutre) {
-                console.log('scan neutre, taille :', auction.auctions.neutre.auctions.length)
                 await auction.auctions?.neutre?.auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
+                        console.log(getName(bid.item.id), bid.buyout / 10000, "neutre")
                         notify._notify(server, bid, "neutre");
                     }
                 })
@@ -135,7 +134,6 @@ class Spotitem {
 
     async _reduceQueueUrlsOfAuctionsOfConnectedRealms() {
         this.listOfPromiseOfAuctionsUrls = [];
-        console.log('---Mise en queue de toutes les urls des auctions---')
         let index = 0;
         this.listOfConnectedRealmsIds.map(realmId => {
             //if (index >= 10) return;
@@ -160,17 +158,15 @@ class Spotitem {
     }
 
     isItemSearched(itemId: any): boolean {
-        let found = false;
-        found = CONFIG.listItems.max60.includes(itemId);
-        found = CONFIG.listItems.max40.includes(itemId);
-        found = CONFIG.listItems.max20.includes(itemId);
-        found = CONFIG.listItems.max15.includes(itemId);
-        return found;
+        return CONFIG.listItems.max100.includes(itemId) || CONFIG.listItems.max60.includes(itemId) ||
+            CONFIG.listItems.max40.includes(itemId) || CONFIG.listItems.max20.includes(itemId) || CONFIG.listItems.max15.includes(itemId);
     }
 
     isPriceItemOk(item: any): boolean {
+
         if (CONFIG.listItems.max100.includes(item.item.id)) {
-            return (item.buyout / 10000) <= 500
+            console.log((item.buyout / 10000))
+            return (item.buyout / 10000) <= 100
         }
         if (CONFIG.listItems.max60.includes(item.item.id)) {
             return (item.buyout / 10000) <= 60
@@ -198,13 +194,13 @@ class Spotitem {
 
 
 let spot;
-
 setInterval(() => {
     spot = new Spotitem(oauthClient);
     spot.run().then((response) => {
         console.log(response);
     });
-}, 180000)
+}, 18000)
+
 
 
 
