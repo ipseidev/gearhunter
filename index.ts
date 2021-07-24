@@ -66,7 +66,7 @@ class Spotitem {
     }
 
     async getAuctionsByRealmId(realmId: string) {
-        console.log("---Récupération et formatage de la liste des ventes aux enchères---")
+        console.log("---Téléchargement des auctions..---")
         const auction = {
             realmId,
             auctions: {
@@ -100,7 +100,8 @@ class Spotitem {
         try {
 
             if (auction.auctions?.horde) {
-                console.log('scan horde..')
+                console.log('scan horde, taille : ', auction.auctions.horde.length);
+
                 await auction.auctions?.horde?.auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
                         notify._notify(server, bid, "horde");
@@ -109,7 +110,7 @@ class Spotitem {
             }
 
             if (auction.auctions?.alliance) {
-                console.log('scan alliance..')
+                console.log('scan alliance, taille :', auction.auctions.alliance.length)
                 await auction.auctions?.alliance?.auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
                         notify._notify(server, bid, "alliance");
@@ -118,7 +119,7 @@ class Spotitem {
             }
 
             if (auction.auctions?.neutre) {
-                console.log('scan neutre..')
+                console.log('scan neutre, taille :', auction.auctions.neutre.length)
                 await auction.auctions?.neutre?.auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
                         notify._notify(server, bid, "neutre");
@@ -193,9 +194,10 @@ class Spotitem {
 }
 
 
-const spot = new Spotitem(oauthClient);
+
 
 setInterval(() => {
+    const spot = new Spotitem(oauthClient);
     spot.run().then((response) => {
         console.log(response);
     });
