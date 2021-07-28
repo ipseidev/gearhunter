@@ -29,16 +29,14 @@ const oauthOptions = {
 };
 
 
-
-
 class Spotitem {
     private accessToken: string;
     private oauthClient: any;
     private listOfConnectedRealmsIds: Array<any> = [];
     private listOfPromiseOfAuctionsUrls: Array<Promise<any>> = [];
-    private queue:any;
+    private queue: any;
 
-    constructor(oauthClient: any, queue:any) {
+    constructor(oauthClient: any, queue: any) {
         this.oauthClient = oauthClient;
         this.queue = queue
         this.accessToken = '';
@@ -119,14 +117,6 @@ class Spotitem {
                 })
             }
 
-            if (auction.auctions?.neutre) {
-                await auction.auctions?.neutre?.auctions.map((bid: any) => {
-                    if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                        console.log(getName(bid.item.id))
-                        notify._notify(server, bid, "neutre");
-                    }
-                })
-            }
         } catch (e) {
             console.log(e);
         }
@@ -182,7 +172,6 @@ class Spotitem {
         return "done";
     }
 }
-
 
 
 setInterval(async () => {
