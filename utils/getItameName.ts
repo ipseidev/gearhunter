@@ -18,6 +18,10 @@ const getItemName = (itemId: number) => {
             return "Lame d'assassin"
         case 1482:
             return "Ombrecroc"
+        case 15512:
+            return "Bouclier de grunt"
+        case 15331:
+            return "Protège-poignets de muletier"
     }
 }
 module.exports = getItemName;

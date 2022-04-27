@@ -98,29 +98,40 @@ class Spotitem {
         const server = await this._getRealmPromise(auction.realmId);
         console.log(`---Scan de ${server.data.realms[0].name.fr_FR}...---`);
         try {
+            const auctions = auction.auctions.horde.auctions || auction.auctions.alliance.auctions;
+            const faction = auction.auctions.horde ? "horde" : auction.auctions.alliance ? "alliance" : null;
 
-            if (auction.auctions?.horde) {
-                await auction.auctions?.horde?.auctions.map((bid: any) => {
+            if (auctions) {
+                auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                        console.log(getName(bid.item.id))
-                        notify._notify(server, bid, "horde");
+                        if (bid.item.id === 15512) {
+                            if (![588, 675, 929, 928, 1184, 589, 1099, 1185, 97, 96, 1653, 115, 114, 653, 93, 89, 111].includes(bid.item.rand)) {
+                                console.log(getName(bid.item.id))
+                                console.log(faction, bid.item)
+                                console.log(faction, bid)
+                                notify._notify(server, bid, faction);
+                            } else {
+                                console.log("pas la bonne variante");
+                            }
+                        } else {
+                            if (this.isVariantSearched(bid.item.id, bid.item.rand)) {
+                                console.log(getName(bid.item.id))
+                                console.log(faction, bid.item)
+                                console.log(faction, bid)
+                                notify._notify(server, bid, faction);
+                            } else {
+                                console.log("pas la bonne variante");
+                            }
+                        }
                     }
                 })
             }
 
-            if (auction.auctions?.alliance) {
-                await auction.auctions?.alliance?.auctions.map((bid: any) => {
-                    if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                        console.log(getName(bid.item.id))
-                        notify._notify(server, bid, "alliance");
-                    }
-                })
-            }
 
         } catch (e) {
             console.log(e);
         }
-        console.log(this.queue._queue._queue.length);
+        console.log("il reste ", this.queue._queue._queue.length, "serveurs à scanner...");
         console.log("---fin du scan---");
     }
 
@@ -150,18 +161,21 @@ class Spotitem {
     }
 
     isItemSearched(itemId: any): boolean {
-        return CONFIG.listItems.max70.includes(itemId) || CONFIG.listItems.max10.includes(itemId)
+        return CONFIG.listItems.all.some((item: any) => item.id === itemId);
     }
 
-    isPriceItemOk(item: any): boolean {
-        if (item.buyout === 0) return false;
-        if (CONFIG.listItems.max70.includes(item.item.id)) {
-            return (item.buyout / 10000) <= 70
-        }
-        if (CONFIG.listItems.max10.includes(item.item.id)) {
-            return (item.buyout / 10000) <= 10
-        }
-        return false;
+    isVariantSearched(itemId: number, variant: number) {
+        const itemSearched = CONFIG.listItems.all.filter((item: any) => item.id === itemId);
+        if (itemSearched[0].rand.length === 0) return true;
+        return itemSearched[0].rand.includes(variant);
+    }
+
+    isPriceItemOk(bid: any): boolean {
+        if (bid.buyout === 0) return false;
+        const itemSearched = CONFIG.listItems.all.filter((itemSearch: any) => bid.item.id === itemSearch.id);
+        return (bid.buyout / 10000) <= itemSearched[0].price
+
+
     }
 
     async run() {
@@ -173,6 +187,12 @@ class Spotitem {
     }
 }
 
+setImmediate(async () => {
+    const oauthClient = new OauthClient({oauthOptions});
+    const pqueue = new PQueue.default({concurrency: 1});
+    let spot = new Spotitem(oauthClient, pqueue);
+    await spot.run();
+})
 
 setInterval(async () => {
     const oauthClient = new OauthClient({oauthOptions});

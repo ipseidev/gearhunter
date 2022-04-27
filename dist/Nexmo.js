@@ -26,12 +26,14 @@ class Nexmo {
         const serverName = server.data.realms[0].name.fr_FR;
         const region = server.data.realms[0].category.fr_FR;
         const price = auction.buyout / 10000;
+        const variant = auction.item.variant || 0;
         return `
         id : ${auction.id}
         Objet: ${nameItem}
         Serveur : ${serverName} - ${region}
         Faction : ${faction}
         Prix : ${price} golds
+        Variant : ${variant}
         `;
     }
     async _isAuctionAlreadyNotified(auctionId) {
