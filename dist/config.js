@@ -21,7 +21,7 @@ module.exports = {
         }
     },
     listItems: {
-        all: [{ id: 15512, rand: [1654], price: 500 }, { id: 15331, rand: [234, 845, 114], price: 100 }],
+        all: [{ id: 15512, rand: [1655], price: 500 }, { id: 15331, rand: [234, 845, 114], price: 100 }],
         max10: [],
         max70: [],
     }

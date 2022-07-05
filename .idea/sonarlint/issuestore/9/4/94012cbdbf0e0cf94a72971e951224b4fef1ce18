@@ -1,0 +1,7 @@
+
+`typescript:S3358g"DExtract this nested ternary operation into an independent statement.(„ÿ¢
+rtypescript:S2201ƒ"UConsider using "forEach" instead of "map" as its return value is not being used here.(ùÕ”Ù
+Gtypescript:S4326…"+Redundant use of `await` on a return value.(šàëR
+Htypescript:S4326"+Redundant use of `await` on a return value.(×§Óş
+Htypescript:S4326“"+Redundant use of `await` on a return value.(ç ·Ş
+utypescript:S4144¸"XUpdate this function so that its implementation is not identical to the one on line 177.(¨ï«À

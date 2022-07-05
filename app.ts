@@ -76,15 +76,15 @@ class Spotitem {
             }
         }
         const alliance = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}/auctions/2?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`).catch((e: any) => {
-            console.log(e);
+            console.log("Impossible de récupérer l'hôtel des ventes de l'alliance de ce serveur");
         });
         auction.auctions.alliance = alliance.data
         const horde = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}/auctions/6?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`).catch((e: any) => {
-            console.log(e);
+            console.log("Impossible de récupérer l'hôtel des ventes de la horde de ce serveur");
         });
         auction.auctions.horde = horde.data
         const neutre = await axios.get(`${CONFIG.apiHosts.eu}/data/wow/connected-realm/${realmId}/auctions/7?namespace=dynamic-classic-eu&status.type=UP&access_token=${this.accessToken}`).catch((e: any) => {
-            console.log(e);
+            console.log("Impossible de récupérer l'hôtel des ventes neutre de ce serveur");
         });
         auction.auctions.neutre = neutre.data
         await this.scanAuction(auction).catch((e: any) => {
@@ -98,22 +98,13 @@ class Spotitem {
         const server = await this._getRealmPromise(auction.realmId);
         console.log(`---Scan de ${server.data.realms[0].name.fr_FR}...---`);
         try {
+
             const auctions = auction.auctions.horde.auctions || auction.auctions.alliance.auctions;
             const faction = auction.auctions.horde ? "horde" : auction.auctions.alliance ? "alliance" : null;
 
             if (auctions) {
                 auctions.map((bid: any) => {
                     if (this.isItemSearched(bid.item.id) && this.isPriceItemOk(bid)) {
-                        if (bid.item.id === 15512) {
-                            if (![588, 675, 929, 928, 1184, 589, 1099, 1185, 97, 96, 1653, 115, 114, 653, 93, 89, 111].includes(bid.item.rand)) {
-                                console.log(getName(bid.item.id))
-                                console.log(faction, bid.item)
-                                console.log(faction, bid)
-                                notify._notify(server, bid, faction);
-                            } else {
-                                console.log("pas la bonne variante");
-                            }
-                        } else {
                             if (this.isVariantSearched(bid.item.id, bid.item.rand)) {
                                 console.log(getName(bid.item.id))
                                 console.log(faction, bid.item)
@@ -122,14 +113,13 @@ class Spotitem {
                             } else {
                                 console.log("pas la bonne variante");
                             }
-                        }
                     }
                 })
             }
 
 
         } catch (e) {
-            console.log(e);
+            console.log("Le serveur ", server, " ne peut pas être scanné");
         }
         console.log("il reste ", this.queue._queue._queue.length, "serveurs à scanner...");
         console.log("---fin du scan---");
@@ -139,7 +129,6 @@ class Spotitem {
         this.listOfPromiseOfAuctionsUrls = [];
         let index = 0;
         this.listOfConnectedRealmsIds.map(realmId => {
-            //if (index >= 10) return;
             this.listOfPromiseOfAuctionsUrls.push(
                 this.queue.add(async () => await this.getAuctionsByRealmId(realmId))
             );
@@ -174,8 +163,6 @@ class Spotitem {
         if (bid.buyout === 0) return false;
         const itemSearched = CONFIG.listItems.all.filter((itemSearch: any) => bid.item.id === itemSearch.id);
         return (bid.buyout / 10000) <= itemSearched[0].price
-
-
     }
 
     async run() {
@@ -199,7 +186,7 @@ setInterval(async () => {
     const pqueue = new PQueue.default({concurrency: 1});
     let spot = new Spotitem(oauthClient, pqueue);
     await spot.run();
-}, 180000)
+}, 250000)
 
 
 
